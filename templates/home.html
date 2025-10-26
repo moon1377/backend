@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% block contenido %}
+
+<section class="flex flex-col items-center justify-center h-screen">
+    <div class="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-12 text-center">
+        <h1 class="text-4xl font-bold mb-4 text-pink-300">
+            Welcome
+        </h1>
+        <p class="text-lg text-gray-700 mb-4 dark:text-zinc-400">
+            hello hi
+        </p>
+        <img src="{% static 'images/gato.jpg' %}" alt="gato" width="250">
+    </div>
+</section>
+
+{% endblock contenido %}

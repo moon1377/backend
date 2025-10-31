@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block contenido %}
+
+<section class="flex flex-col items-center justify-center h-screen">
+    <div class="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-12 text-center">
+        <h1 class="text-8xl font-[Times New Roman]">Register form!</h1>
+        <form class="text-center" action='/users/register/' method='post'>
+            {% csrf_token %}
+            {{ form }}
+            <button class="mt-4 px-6 py-2 bg-pink-400 text-white font-semibold rounded-lg hover:bg-pink-500" type="submit">Submit form!</button>
+        </form>
+    </div>
+</section>
+
+{% endblock contenido %}

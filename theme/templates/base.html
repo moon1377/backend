@@ -8,9 +8,27 @@
 </head>
 <body class="bg-gray-200 dark:bg-slate-950">
     <header class="bg-gray-500 dark:bg-gray-700 shadow-md">
-        <nav class="flex justify-center space-x-6 py-4">
-            <a href="{% url 'home' %}" class="text-2xl text-white font-bold hover:text-gray-400">Home</a>
-            <a href="{% url 'prueba:home' %}" class="text-2xl text-white font-bold hover:text-gray-400">App</a>
+        <nav class="flex justify-between items-center px-10 py-4">
+  
+            <div class="flex items-center space-x-6">
+                <a href="{% url 'home' %}" class="text-2xl text-white font-bold hover:text-gray-400">Home</a>
+                <a href="{% url 'prueba:home' %}" class="text-2xl text-white font-bold hover:text-gray-400">App</a>
+                <a href="{% url 'users:home' %}" class="text-2xl text-white font-bold hover:text-gray-400">Users</a>
+            </div>
+
+
+            <div class="flex items-center space-x-6">
+                <a href="{% url 'users:login' %}" class="text-2xl text-white font-bold hover:text-gray-400">Login</a>
+                <a href="{% url 'users:register' %}" class="text-2xl text-white font-bold hover:text-gray-400">Register</a>
+
+                <form action="{% url 'users:logout' %}" method="post" class="inline">
+                    {% csrf_token %}
+                
+                    <button class="text-2xl text-white font-bold hover:text-gray-400">Logout</button>
+                </form>
+
+                <p class="text-2xl text-white font-bold">User: {{ user.username }}</p>
+            </div>
         </nav>
     </header>
     <div class="container mx-auto">

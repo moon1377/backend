@@ -25,6 +25,7 @@ urlpatterns = [
     path('', views.homepage, name='home'),
     path('appname/', include('appname.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
+    path('users/', include('users.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,

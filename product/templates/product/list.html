@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block contenido %}
+
+<div class="max-w-4xl mx-auto p-4">
+    <div>
+        <h2 class="text-xl font-bold mb-4">Agregar Producto</h2>
+        <form action="{% url 'product:home' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+                Publicar Producto
+            </button>
+        </form>
+    </div>
+
+    <div>
+        <div class="p-4 border-b">
+            <h2 class="text-xl font-bold">Productos</h2>
+        </div>
+        
+        <div>
+            {% for product in product_list %}
+            <div class="border-b py-3 last:border-b-0">
+                <div class="flex justify-between">
+                    <h3 class="font-bold">{{ product.name }}</h3>
+                    <span class="text-green-600">{{ product.price }}€</span>
+                </div>
+                <p class="text-gray-600 text-sm mt-1">{{ product.description }}</p>
+                <div class="flex text-xs text-gray-500 mt-2">
+                    <span class="mr-4">Categoría: {{ product.get_category_display }}</span>
+                    <span class="mr-4">Por: {{ product.user.username }}</span>
+                    <span>{{ product.date_published|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-gray-500">
+                <p>No hay productos publicados.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+  textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    border: 1px solid;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    border: 1px solid;
+  }
+
+</style>
+
+
+{% endblock contenido %}

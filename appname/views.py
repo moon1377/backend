@@ -10,3 +10,5 @@ def appname_home(request):
 def personalizado(request, slug):
     person = Person.objects.get(slug=slug)
     return render(request, 'appname/person.html', {'person' : person})
+
+

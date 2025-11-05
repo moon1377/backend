@@ -4,10 +4,10 @@
 
 <div class="max-w-4xl mx-auto p-4">
     <div>
-        <h2 class="text-xl font-bold mb-4">Agregar Producto</h2>
+        <h1 class="text-xl font-bold mb-4">Agregar Producto</h1>
         <form action="{% url 'product:home' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form }}
             <button class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
                 Publicar Producto
             </button>

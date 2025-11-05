@@ -31,7 +31,7 @@
                 </div>
                 {% endif %}
 
-                <form action="{% url 'users:logout' %}" method="post" class="inline">
+                <form action="{% url 'users:logout' %}" method="post">
                     {% csrf_token %}
                 
                     <button class="text-2xl text-white font-bold hover:text-gray-400">Logout</button>

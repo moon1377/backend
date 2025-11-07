@@ -8,7 +8,7 @@
         <form action="{% url 'product:home' %}" method="post">
             {% csrf_token %}
             {{ form }}
-            <button class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+            <button class="mt-4 px-6 py-2 bg-pink-400 text-white font-semibold rounded-lg hover:bg-pink-500">
                 Publicar Producto
             </button>
         </form>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<section class="flex flex-col items-center justify-center h-screen">
+    <div class="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-12 text-center">
+        <h1>Active Tic Tac Toe Games</h1>
+
+        <form action="{% url 'games:games_list' %}" method="POST">
+            {% csrf_token %}
+            {{ form.room_name }}
+            <button type="submit">Start New Game</button>
+        </form>
+
+        <ul>
+            {% for g in games %}
+                <li>
+                    <a href="{% url 'games:play_game' g.id %}">
+                        {{ g.room_name }} ({{ g.state }})
+                    </a>
+                </li>
+            {% endfor %}
+</ul>
+    </div>
+</section>
+
+
+{% endblock contenido %}

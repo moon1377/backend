@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<h2>Room: {{ game.room_name }}</h2>
+<p>User: {{ user.username }}</p>
+
+{% if game.state == "won_X" %}
+    <h3>Winner: ❌</h3>
+{% elif game.state == "won_O" %}
+    <h3>Winner: ⭕</h3>
+{% elif game.state == "tie" %}
+    <h3>It's a tie!</h3>
+{% else %}
+    <h3>Turn: Player {{ game.active_player }}</h3>
+{% endif %}
+
+{% if user == game.owner and game.state == "active" %}
+<form method="post">
+    {% csrf_token %}
+    <div style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
+        {% for cell in board %}
+        {% if cell == " " %}
+            <button name="square" value="{{ forloop.counter0 }}" style="height: 80px; font-size: 2em;">▧</button>
+        {% elif cell == "X" %}
+            <div style="height: 80px; font-size: 2em;">❌</div>
+        {% else %}
+            <div style="height: 80px; font-size: 2em;">⭕</div>
+        {% endif %}
+    {% endfor %}
+    </div>
+</form>
+{% else %}
+<div style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
+    {% for cell in board %}
+        {% if cell == " " %}
+            <div style="height: 80px; font-size: 2em;">▧</div>
+        {% elif cell == "X" %}
+            <div style="height: 80px; font-size: 2em;">❌</div>
+        {% else %}
+            <div style="height: 80px; font-size: 2em;">⭕</div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if game.state != "active" and user == game.owner %}
+<a href="{% url 'games:close_game' game.id %}">
+    <button>Close Room</button>
+</a>
+{% endif %}
+
+{% endblock contenido %}

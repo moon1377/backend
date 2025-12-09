@@ -3,27 +3,94 @@
 
 {% block contenido %}
 
-<section class="flex flex-col items-center justify-center h-screen">
-    <div class="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-12 text-center">
-        <h1>Active Tic Tac Toe Games</h1>
+<section class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900 p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto">
+        
+        <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 md:p-10">
+        
+            <div class="text-center mb-8 sm:mb-12"> 
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
+                    Juegos epicos
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
+                    juega con amigos
+                </p>
+            </div>
 
-        <form action="{% url 'games:games_list' %}" method="POST">
-            {% csrf_token %}
-            {{ form.room_name }}
-            <button type="submit">Start New Game</button>
-        </form>
+            <div class="mb-10 sm:mb-14 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 sm:p-8 rounded-xl sm:rounded-2xl border border-blue-100 dark:border-blue-800/30">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6">
+                    Create New Room
+                </h2>
+                <form action="{% url 'games:games_list' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div class="flex-1">
+                            {{ form.room_name }}
+                        </div>
+                        <button type="submit" 
+                                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg sm:rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+                             CREAR JUEGO
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-        <ul>
-            {% for g in games %}
-                <li>
-                    <a href="{% url 'games:play_game' g.id %}">
-                        {{ g.room_name }} ({{ g.state }})
-                    </a>
-                </li>
-            {% endfor %}
-</ul>
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-2 sm:gap-0">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
+                        Salas activas
+                    </h2>
+                </div>
+
+                {% if games %}
+                    <div class="space-y-4 sm:space-y-5">
+                        {% for g in games %}
+                            <a href="{% url 'games:play_game' g.id %}" 
+                               class="block bg-gray-50 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-slate-700 p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all duration-300 hover:shadow-md sm:hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-bold text-lg sm:text-xl text-gray-900 dark:text-white truncate">
+                                            {{ g.room_name }}
+                                        </h3>
+                                        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            ID: {{ g.id }}
+                                        </p>
+                                    </div>
+                                    <div class="text-left sm:text-right">
+                                        <span class="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold text-xs sm:text-sm
+                                            {% if g.state == 'waiting' %}
+                                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+                                            {% elif g.state == 'playing' %}
+                                                bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+                                            {% elif g.state == 'finished' %}
+                                                bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                                            {% else %}
+                                                bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                            {% endif %}">
+                                            {{ g.state|title }}
+                                        </span>
+                                        <div class="mt-1 sm:mt-2 text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-medium">
+                                            Unirse
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-10 sm:py-16 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl sm:rounded-3xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50">
+                        <div class="text-4xl sm:text-6xl mb-4 sm:mb-6 opacity-50">🎲</div>
+                        <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-medium">
+                            No hay juegos
+                        </p>
+                        <p class="text-gray-500 dark:text-gray-500 mt-2 sm:mt-3 text-sm sm:text-base">
+                            Se el primero
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </section>
-
 
 {% endblock contenido %}

@@ -14,7 +14,7 @@
     <h3>Turn: Player {{ game.active_player }}</h3>
 {% endif %}
 
-{% if user == game.owner and game.state == "active" %}
+
 <form method="post">
     {% csrf_token %}
     <div style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
@@ -29,24 +29,64 @@
     {% endfor %}
     </div>
 </form>
-{% else %}
-<div style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
-    {% for cell in board %}
-        {% if cell == " " %}
-            <div style="height: 80px; font-size: 2em;">▧</div>
-        {% elif cell == "X" %}
-            <div style="height: 80px; font-size: 2em;">❌</div>
-        {% else %}
-            <div style="height: 80px; font-size: 2em;">⭕</div>
-        {% endif %}
-    {% endfor %}
-</div>
-{% endif %}
+
 
 {% if game.state != "active" and user == game.owner %}
 <a href="{% url 'games:close_game' game.id %}">
     <button>Close Room</button>
 </a>
 {% endif %}
+
+
+{{ game_data|json_script:"game-data" }}
+
+<script>
+  
+  const gameData = JSON.parse(document.getElementById("game-data").textContent);
+  const roomId = gameData.id; 
+
+
+  const gameSocket = new WebSocket(
+    "ws://" + window.location.host + "/ws/game/" + roomId + "/"
+  );
+
+  gameSocket.onopen = function (e) {
+    console.log("Conectado al WebSocket de la sala", roomId);
+  };
+
+  gameSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    console.log("Nuevo mensaje recibido:", data);
+
+   
+    if (data.my_data) {
+
+      updateGame(data.my_data);
+    }
+  };
+
+
+  function sendMove(squareIndex, playerNumber) {
+    gameSocket.send(
+      JSON.stringify({
+        type: "move",
+        square: squareIndex,
+        player: playerNumber,
+        room_id: roomId,
+      })
+    );
+  }
+
+
+  function sendChatMessage(message) {
+    gameSocket.send(
+      JSON.stringify({
+        type: "chat",
+        message: message,
+        room_id: roomId,
+      })
+    );
+  }
+</script>
 
 {% endblock contenido %}

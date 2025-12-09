@@ -25,12 +25,14 @@ SECRET_KEY = 'django-insecure-z^$fjb^!u82+#pe)iw#tofs5i#($ur#w-&v+@49(sd!o$j4p3_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,3 +140,14 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media/'
+
+ASGI_APPLICATION = 'mi_proyecto.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

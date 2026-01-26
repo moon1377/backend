@@ -4,32 +4,29 @@
 <h2>Room: {{ game.room_name }}</h2>
 <p>User: {{ user.username }}</p>
 
-{% if game.state == "won_X" %}
-    <h3>Winner: ❌</h3>
-{% elif game.state == "won_O" %}
-    <h3>Winner: ⭕</h3>
-{% elif game.state == "tie" %}
-    <h3>It's a tie!</h3>
-{% else %}
-    <h3>Turn: Player {{ game.active_player }}</h3>
-{% endif %}
+<div id="game-status">
+  {% if game.state == "won_X" %}
+      <h3>Winner: ❌</h3>
+  {% elif game.state == "won_O" %}
+      <h3>Winner: ⭕</h3>
+  {% elif game.state == "tie" %}
+      <h3>It's a tie!</h3>
+  {% else %}
+      <h3>Turn: Player {{ game.active_player }}</h3>
+  {% endif %}
+</div>
 
-
-<form method="post">
-    {% csrf_token %}
-    <div style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
-        {% for cell in board %}
-        {% if cell == " " %}
-            <button name="square" value="{{ forloop.counter0 }}" style="height: 80px; font-size: 2em;">▧</button>
-        {% elif cell == "X" %}
-            <div style="height: 80px; font-size: 2em;">❌</div>
-        {% else %}
-            <div style="height: 80px; font-size: 2em;">⭕</div>
-        {% endif %}
+<div id="game-board" style="display: grid; grid-template-columns: repeat(3, 80px); gap: 5px;">
+    {% for cell in board %}
+      {% if cell == " " %}
+          <button class="square" data-index="{{ forloop.counter0 }}" style="height: 80px; font-size: 2em;">▧</button>
+      {% elif cell == "X" %}
+          <div style="height: 80px; font-size: 2em;">❌</div>
+      {% else %}
+          <div style="height: 80px; font-size: 2em;">⭕</div>
+      {% endif %}
     {% endfor %}
-    </div>
-</form>
-
+</div>
 
 {% if game.state != "active" and user == game.owner %}
 <a href="{% url 'games:close_game' game.id %}">
@@ -37,46 +34,106 @@
 </a>
 {% endif %}
 
-
 {{ game_data|json_script:"game-data" }}
 
 <script>
+  // datos del juego
+  const gameData = JSON.parse(JSON.parse(document.getElementById("game-data").textContent));
+  const roomId = gameData.id;
+  const myPlayerNumber = gameData.player_number;
   
-  const gameData = JSON.parse(document.getElementById("game-data").textContent);
-  const roomId = gameData.id; 
+  console.log("DEBUG: Iniciando juego...");
+  console.log("DEBUG: Mi número de jugador:", myPlayerNumber);
+  console.log("DEBUG: Turno actual:", gameData.active_player);
+  console.log("DEBUG: Estado del juego:", gameData.state);
 
-
+  // conectar websocket
   const gameSocket = new WebSocket(
     "ws://" + window.location.host + "/ws/game/" + roomId + "/"
   );
 
+  // manejar clics de las casillas
+  document.getElementById('game-board').addEventListener('click', function(e) {
+    if (e.target.classList.contains('square')) {
+      const squareIndex = e.target.getAttribute('data-index');
+      sendMove(squareIndex, myPlayerNumber);
+    }
+  });
+ 
   gameSocket.onopen = function (e) {
     console.log("Conectado al WebSocket de la sala", roomId);
   };
 
-  gameSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
+  gameSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data).my_data;
     console.log("Nuevo mensaje recibido:", data);
+    
+    if (!data || !data.board) return;
 
-   
-    if (data.my_data) {
+    const board = data.board;
+    const activePlayer = data.active_player;
+    const state = data.state;
+    const error = data.error;
 
-      updateGame(data.my_data);
+    // mostrar error si existe
+    if (error) {
+        console.error("Error:", error);
+        alert(error);
+        return;
+    }
+
+    // actualizar estado del juego
+    const statusElement = document.getElementById("game-status");
+    if (state === "won_X") {
+        statusElement.innerHTML = "<h3>Winner: ❌</h3>";
+    } else if (state === "won_O") {
+        statusElement.innerHTML = "<h3>Winner: ⭕</h3>";
+    } else if (state === "tie") {
+        statusElement.innerHTML = "<h3>It's a tie!</h3>";
+    } else {
+        statusElement.innerHTML = `<h3>Turn: Player ${activePlayer}</h3>`;
+    }
+
+    // actualiza en tablero de manera visual
+    const boardElement = document.getElementById("game-board");
+    boardElement.innerHTML = "";
+    
+    for (let i = 0; i < board.length; i++) {
+        if (board[i] === "X") {
+            boardElement.innerHTML += `<div style="height: 80px; font-size: 2em;">❌</div>`;
+        } else if (board[i] === "O") {
+            boardElement.innerHTML += `<div style="height: 80px; font-size: 2em;">⭕</div>`;
+        } else {
+            // solo mostrar boton si el juego esta activo
+            if (state === "active") {
+                boardElement.innerHTML += `<button class="square" data-index="${i}" style="height: 80px; font-size: 2em;">▧</button>`;
+            } else {
+                boardElement.innerHTML += `<div style="height: 80px; font-size: 2em;">▧</div>`;
+            }
+        }
     }
   };
 
+  gameSocket.onerror = function(e) {
+    console.error("Error en WebSocket:", e);
+  };
+
+  gameSocket.onclose = function(e) {
+    console.log("Conexión WebSocket cerrada");
+  };
 
   function sendMove(squareIndex, playerNumber) {
-    gameSocket.send(
-      JSON.stringify({
+    console.log("Enviando movimiento:", { square: squareIndex, player: playerNumber });
+    
+    const message = JSON.stringify({
         type: "move",
         square: squareIndex,
         player: playerNumber,
         room_id: roomId,
-      })
-    );
+    });
+    
+    gameSocket.send(message);
   }
-
 
   function sendChatMessage(message) {
     gameSocket.send(
@@ -87,6 +144,11 @@
       })
     );
   }
+  
+  // limpiar sesion al salir de la pagina
+  window.addEventListener('beforeunload', function() {
+
+  });
 </script>
 
 {% endblock contenido %}

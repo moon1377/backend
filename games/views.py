@@ -29,73 +29,41 @@ def play_game(request, game_id):
     if len(board) != 9:
         board = [" " for _ in range(9)]
 
+    # asignar
+    session_key = f'game_{game_id}_player'
+    
+    if request.user == game.owner:
+        # el creador es el 1
+        player_number = 1
+        player_symbol = 'X'
+        request.session[session_key] = 1
+        print(f"DEBUG: {request.user.username} es OWNER -> Jugador 1")
+    else:
+        # para otro el 2
+        # vemos si ya tiene una key
+        if session_key in request.session:
+            player_number = request.session[session_key]
+            print(f"DEBUG: {request.user.username} ya tiene asignado -> Jugador {player_number}")
+        else:
+            
+            player_number = 2
+            request.session[session_key] = 2
+            print(f"DEBUG: {request.user.username} nuevo -> Jugador 2")
+        
+        player_symbol = 'O' if player_number == 2 else 'X'
+
     game_data = {
         'id': game_id,
-        'player_number': 1 if request.user == game.owner else 2,
-        'player_symbol': 'X' if request.user == game.owner else 'O',
-        'is_owner': request.user == game.owner
+        'board': board,
+        'state': game.state,
+        'active_player': game.active_player,
+        'player_number': player_number,
+        'player_symbol': player_symbol,
+        'is_owner': request.user == game.owner,
+        'owner': game.owner.username if game.owner else None
     }
 
-    if request.method == "POST":
-        square = request.POST.get("square")
-        
-        if square is None:
-            return render(request, "games/play.html", {
-                "game": game, 
-                "board": board,
-                "game_data": json.dumps(game_data)
-            })
-        
-        try:
-            square = int(square)
-            if not (0 <= square <= 8):
-                raise ValueError
-        except (ValueError, TypeError):
-            return render(request, "games/play.html", {
-                "game": game, 
-                "board": board,
-                "error": "Invalid move selection!",
-                "game_data": json.dumps(game_data)
-            })
-        
-        is_owner = request.user == game.owner
-        player_symbol = "X" if is_owner else "O"
-        current_turn_symbol = "X" if game.active_player == 1 else "O"
-        
-        if player_symbol != current_turn_symbol:
-            return render(request, "games/play.html", {
-                "game": game, 
-                "board": board,
-                "error": f"Not your turn! It's Player {game.active_player}'s turn ({current_turn_symbol})",
-                "game_data": json.dumps(game_data)
-            })
-        
-        if game.board[square] != " ":
-            return render(request, "games/play.html", {
-                "game": game, 
-                "board": board,
-                "error": "That cell is already taken!",
-                "game_data": json.dumps(game_data)
-            })
-        
-        board[square] = player_symbol
- 
-        game.board = "".join(board)
-        
-        win = game.check_winner()  
-        
-        if win == "X":
-            game.state = "won_X"
-        elif win == "O":
-            game.state = "won_O"
-        elif win == "tie":
-            game.state = "tie"
-        else:
-
-            game.active_player = 2 if game.active_player == 1 else 1
-        
-        game.save()
-        return redirect("games:play_game", game_id=game_id)
+    print(f"DEBUG game_data final: {game_data}")
 
     return render(request, "games/play.html", {
         "game": game, 

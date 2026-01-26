@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'games',
     'api',
     'rest_framework',
+    'memegenerator',
 ]
 
 MIDDLEWARE = [

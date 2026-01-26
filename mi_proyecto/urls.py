@@ -31,6 +31,7 @@ urlpatterns = [
     path('games/', include('games.urls')),
     path('api/', include('api.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('memes/', include('memegenerator.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,

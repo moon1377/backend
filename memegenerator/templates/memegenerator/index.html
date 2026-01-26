@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block contenido %}
+<html>
+<head>
+    <title>Galería de Memes</title>
+    <style>
+        .gallery { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+        .meme-card { border: 1px solid #ccc; padding: 10px; border-radius: 8px; width: 200px; text-align: center; }
+        .meme-card img { max-width: 100%; height: auto; border-radius: 4px; }
+        .meme-name { font-weight: bold; margin-top: 10px; display: block;}
+    </style>
+</head>
+<body>
+    <h1>Top 100 Memes (API Externa)</h1>
+    <div class="gallery">
+        {% for meme in memes %}
+            <div class="meme-card">
+                <img src="{{ meme.url }}" alt="{{ meme.name }}">
+                <span class="meme-name">{{ meme.name }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
+{% endblock contenido %}

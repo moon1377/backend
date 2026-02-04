@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'memegenerator',
+    'chatbot',
 ]
 
 MIDDLEWARE = [

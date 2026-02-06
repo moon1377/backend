@@ -4,32 +4,34 @@ import json
 from .models import Game
 from .forms import NewGameForm
 
-@login_required(login_url='users:login')
+@login_required(login_url='users:login') 
 def games_list(request):
-    games = Game.objects.all()
+    games = Game.objects.all() # obtiene todas las partidas
     
     if request.method == "POST":
-        form = NewGameForm(request.POST)
+        form = NewGameForm(request.POST) # crea el formulario con los datos
+        
+        #mira si es valido. Mira si
         if form.is_valid():
             new_game = form.save(commit=False)
-            new_game.owner = request.user
+            new_game.owner = request.user # asigna el usuario
             new_game.save()
             return redirect("games:games_list")
     else:
-        form = NewGameForm()
+        form = NewGameForm() # sino crea el formulario vacio
     
-    return render(request, "games/game.html", {"games": games, "form": form})
+    return render(request, "games/game.html", {"games": games, "form": form}) 
 
 @login_required(login_url='users:login')
 def play_game(request, game_id):
-    game = get_object_or_404(Game, id=game_id)
+    game = get_object_or_404(Game, id=game_id) # busca juego o da error
     
-    board = list(game.board)
+    board = list(game.board) #convierte el string del tablero en lista
     
     if len(board) != 9:
         board = [" " for _ in range(9)]
 
-    # asignar
+    # asignar jugador
     session_key = f'game_{game_id}_player'
     
     if request.user == game.owner:
@@ -44,7 +46,9 @@ def play_game(request, game_id):
         if session_key in request.session:
             player_number = request.session[session_key]
             print(f"DEBUG: {request.user.username} ya tiene asignado -> Jugador {player_number}")
-        else:
+            
+        # si es la primera vez que entra se le asigna el 2
+        else: 
             
             player_number = 2
             request.session[session_key] = 2
@@ -52,6 +56,7 @@ def play_game(request, game_id):
         
         player_symbol = 'O' if player_number == 2 else 'X'
 
+    # guarda para play
     game_data = {
         'id': game_id,
         'board': board,
@@ -73,7 +78,7 @@ def play_game(request, game_id):
 
 @login_required(login_url='users:login')
 def close_game(request, game_id):
-    game = get_object_or_404(Game, id=game_id)
-    if request.user == game.owner:
+    game = get_object_or_404(Game, id=game_id) #busca partida
+    if request.user == game.owner: #solo el dueño puede borrar
         game.delete()
     return redirect("games:games_list")

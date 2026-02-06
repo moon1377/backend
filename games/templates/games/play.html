@@ -37,39 +37,44 @@
 {{ game_data|json_script:"game-data" }}
 
 <script>
-  // datos del juego
-  const gameData = JSON.parse(JSON.parse(document.getElementById("game-data").textContent));
-  const roomId = gameData.id;
-  const myPlayerNumber = gameData.player_number;
+  // ------------datos del juego------------
+  const gameData = JSON.parse(JSON.parse(document.getElementById("game-data").textContent)); 
+  const roomId = gameData.id; // id para websocket
+  const myPlayerNumber = gameData.player_number; // para saber jugador
   
+  //------------mensajes------------
   console.log("DEBUG: Iniciando juego...");
   console.log("DEBUG: Mi número de jugador:", myPlayerNumber);
   console.log("DEBUG: Turno actual:", gameData.active_player);
   console.log("DEBUG: Estado del juego:", gameData.state);
 
-  // conectar websocket
+  // ------------conectar websocket------------
   const gameSocket = new WebSocket(
     "ws://" + window.location.host + "/ws/game/" + roomId + "/"
   );
 
-  // manejar clics de las casillas
+  // ------------manejar clics de las casillas------------
+  // escucha cualquier click en el tablero
   document.getElementById('game-board').addEventListener('click', function(e) {
-    if (e.target.classList.contains('square')) {
+    if (e.target.classList.contains('square')) { //para que solo escuche si hizo click en una casilla vacia
       const squareIndex = e.target.getAttribute('data-index');
-      sendMove(squareIndex, myPlayerNumber);
+      sendMove(squareIndex, myPlayerNumber); //manda el movimiento del que usuario en que casilla
     }
   });
  
+  // ------------mensaje websocket de conexion------------
   gameSocket.onopen = function (e) {
     console.log("Conectado al WebSocket de la sala", roomId);
   };
 
+  // ------------actu------------
   gameSocket.onmessage = function(e) {
     const data = JSON.parse(e.data).my_data;
     console.log("Nuevo mensaje recibido:", data);
     
-    if (!data || !data.board) return;
+    if (!data || !data.board) return; //si no hay datos correctos se ignora el mensaje
 
+    // info de la partida
     const board = data.board;
     const activePlayer = data.active_player;
     const state = data.state;
@@ -82,7 +87,9 @@
         return;
     }
 
-    // actualizar estado del juego
+    // ------------actualizar estado del juego------------
+
+    //si gana alguno lo pone
     const statusElement = document.getElementById("game-status");
     if (state === "won_X") {
         statusElement.innerHTML = "<h3>Winner: ❌</h3>";
@@ -90,21 +97,24 @@
         statusElement.innerHTML = "<h3>Winner: ⭕</h3>";
     } else if (state === "tie") {
         statusElement.innerHTML = "<h3>It's a tie!</h3>";
-    } else {
+    } else { // si no gana ninguno pone el turno del siguiente jugador
         statusElement.innerHTML = `<h3>Turn: Player ${activePlayer}</h3>`;
     }
 
-    // actualiza en tablero de manera visual
+    // ------------actualiza en tablero de manera visual------------
     const boardElement = document.getElementById("game-board");
     boardElement.innerHTML = "";
     
-    for (let i = 0; i < board.length; i++) {
+    for (let i = 0; i < board.length; i++) { // recorre las 9 casillas
+        // si hay una X la pone
         if (board[i] === "X") {
             boardElement.innerHTML += `<div style="height: 80px; font-size: 2em;">❌</div>`;
+
+        // si hay un O lo pone
         } else if (board[i] === "O") {
             boardElement.innerHTML += `<div style="height: 80px; font-size: 2em;">⭕</div>`;
         } else {
-            // solo mostrar boton si el juego esta activo
+            // si el juego sigue activo pone un boton clickeable, sino pone uno pero no es boton
             if (state === "active") {
                 boardElement.innerHTML += `<button class="square" data-index="${i}" style="height: 80px; font-size: 2em;">▧</button>`;
             } else {
@@ -114,17 +124,23 @@
     }
   };
 
+  // ------------mensajes websocket------------
+
+  //solo se ejecuta si la conexión falla
   gameSocket.onerror = function(e) {
     console.error("Error en WebSocket:", e);
   };
 
+  // solo se ejecuta cuando se cierra la pagina o se pierde conexión
   gameSocket.onclose = function(e) {
     console.log("Conexión WebSocket cerrada");
   };
 
+  // ------------enviar jugada------------
   function sendMove(squareIndex, playerNumber) {
     console.log("Enviando movimiento:", { square: squareIndex, player: playerNumber });
     
+    // registra todo ciando haces click y crea el mensaje
     const message = JSON.stringify({
         type: "move",
         square: squareIndex,
@@ -132,9 +148,11 @@
         room_id: roomId,
     });
     
-    gameSocket.send(message);
+    gameSocket.send(message); //manda el mensaje
+
   }
 
+  //------------FUNCION CHAT QUE NO DESARROLLE------------
   function sendChatMessage(message) {
     gameSocket.send(
       JSON.stringify({

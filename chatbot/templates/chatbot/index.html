@@ -14,7 +14,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="prompt">Escribe tu pregunta a la IA:</label><br>
-                <textarea name="prompt" id="prompt" placeholder="Ej: ¿Por qué el cielo es azul?">{% if user_prompt %}{{ user_prompt }}{% endif %}</textarea>
+                <textarea name="prompt" id="prompt" placeholder="Ej: ¿Como hacer un flan?">{% if user_prompt %}{{ user_prompt }}{% endif %}</textarea>
             </div>
             <button type="submit">Enviar a Gemini</button>
         </form>
@@ -22,7 +22,7 @@
         {% if response %}
             <div class="response-box">
                 <p><strong>Respuesta de la IA:</strong></p>
-                <p>{{ response|linebreaks }}</p>
+                <p>{{ response|linebreaks }}</p> <!-- br-->>
             </div>
         {% endif %}
     </div>
@@ -30,14 +30,12 @@
 
 
     <style>
-        nav {
-            background-color: #2c3e50;
-        }
+        
         
         
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #ffffff;
             margin: 0;
             padding: 0;
         }

@@ -8,4 +8,4 @@ class StatusSerializer(serializers.Serializer):
 class ErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ErrorReport
-        fields = ['code', 'description', 'date']
+        fields = ['code', 'description', 'date'] # campos a incluir
